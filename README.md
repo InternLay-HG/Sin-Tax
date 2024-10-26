@@ -1,6 +1,6 @@
 # QueueIt — A Virtual Line Management Platform
 
-QueueIt is a web and mobile platform designed to revolutionize how people and businesses manage queues. Users can join, monitor, and manage queues virtually for both physical locations and online services, eliminating unnecessary waiting and enhancing customer satisfaction.
+QueueIt is a web and mobile platform designed to revolutionize how people and businesses manage queues. Users can join, monitor, and manage queues virtually for physical locations and online services, eliminating unnecessary waiting and enhancing customer satisfaction.
 
 ## Key Features:
 
@@ -11,7 +11,7 @@ QueueIt is a web and mobile platform designed to revolutionize how people and bu
 - Users join queues, track their position, and receive real-time notifications when their turn is near.
 
 ### Queue Scheduling & Flexibility:
-- Users can schedule queues in advance, swap spots, and access priority lanes for special needs.
+- Users can schedule early queues, swap spots, and access priority lanes for special needs.
 
 ### Universal Queue System for Events:
 - Support pre-queues for tickets and merchandise at events with countdown notifications.
@@ -53,16 +53,17 @@ QueueIt is a web and mobile platform designed to revolutionize how people and bu
 - Apache Kafka
 
 ### Frontend (App):
-- Kotlin
-- Jetpack Compose
-- Retrofit
-- Coil
-- Dagger-Hilt
-- WorkManager
+- Kotlin: programming language
+- Jetpack Compose: declarative UI framework
+- Retrofit: for client-side API connection
+- Coil: asynchronous image loading
+- Dagger-Hilt: dependency injection
+- WorkManager: for background tasks
 
 ### Backend (App):
-- Ktor
-- WebSocket
+- Ktor: Kotlin's server application framework
+- WebSocket: Persistent duplex communication
+- kotlinx.serialization: Transform Kotlin Objects to JSON and vice-versa
 
 ### Database:
 - Postgres
