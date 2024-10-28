@@ -59,6 +59,7 @@ QueueIt is a web and mobile platform designed to revolutionize how people and bu
 - Coil: asynchronous image loading
 - Dagger-Hilt: dependency injection
 - WorkManager: for background tasks
+- DataStore: local storage
 
 ### Backend (App):
 - Ktor: Kotlin's server application framework
