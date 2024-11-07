@@ -65,6 +65,8 @@ QueueIt is a web and mobile platform designed to revolutionize how people and bu
 - Ktor: Kotlin's server application framework
 - WebSocket: Persistent duplex communication
 - kotlinx.serialization: Transform Kotlin Objects to JSON and vice-versa
+- Exposed DAO: Object-Relational Mapping for SQL Database Tables
+- Koin: Dependency Injection
 
 ### Database:
 - Postgres
