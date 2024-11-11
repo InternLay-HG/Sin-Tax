@@ -1,6 +1,9 @@
 package com.sin_tax.routes
 
 import com.sin_tax.model.Business
+import com.sin_tax.plugins.createToken
+import com.sin_tax.repository.BusinessRepository
+import com.sin_tax.repository.Businesses
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -10,8 +13,6 @@ import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.inject
-import repository.BusinessRepository
-import repository.Businesses
 
 fun Routing.businessRoutes() {
 
@@ -29,8 +30,8 @@ fun Routing.businessRoutes() {
                 val business = call.receive<Business>()
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 val userId = principal.getClaim("userId", String::class) ?: return@post call.respond(HttpStatusCode.Forbidden)
-                businessRepository.register(business, userId.toInt())
-                call.respond(HttpStatusCode.OK)
+                val businessId = businessRepository.register(business, userId.toInt())
+                call.respond(createToken("businessId", businessId.toString()))
             }
         }
     }

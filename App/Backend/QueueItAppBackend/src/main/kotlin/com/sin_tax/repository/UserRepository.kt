@@ -1,6 +1,5 @@
-package repository
+package com.sin_tax.repository
 
-import com.sin_tax.model.Customer
 import com.sin_tax.model.User
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity

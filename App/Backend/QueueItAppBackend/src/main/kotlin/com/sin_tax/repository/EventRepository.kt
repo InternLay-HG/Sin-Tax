@@ -1,7 +1,8 @@
-package repository
+package com.sin_tax.repository
 
 import com.sin_tax.model.Event
 import com.sin_tax.model.EventCategory
+import com.sin_tax.routes.dbQuery
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -35,8 +36,8 @@ class EventEntity(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class EventRepository {
-    suspend fun create(event: Event, business: BusinessEntity) {
-        dbQuery {
+    suspend fun create(event: Event, business: BusinessEntity): Int {
+        return dbQuery {
             EventEntity.new {
                 this.title = event.title
                 this.description = event.description
@@ -46,7 +47,11 @@ class EventRepository {
                 this.category = event.category
                 this.waitTime = event.waitTime
             }
-        }
+        }.id.value
+    }
+
+    suspend fun getEventEntity(id: Int) = dbQuery {
+        EventEntity.findById(id)
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =

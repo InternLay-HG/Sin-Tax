@@ -1,10 +1,12 @@
 package com.sin_tax.di
 
+import com.sin_tax.repository.*
 import org.koin.dsl.module
-import repository.BusinessRepository
-import repository.UserRepository
 
 val appModule = module {
     single { UserRepository() }
     single { BusinessRepository() }
+    single { CustomerRepository() }
+    single { EventRepository() }
+    single { QueueRepository() }
 }

@@ -7,7 +7,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import repository.CustomerRepository
+import com.sin_tax.repository.CustomerRepository
 
 fun Routing.customerRoutes() {
     val customerRepository = CustomerRepository()

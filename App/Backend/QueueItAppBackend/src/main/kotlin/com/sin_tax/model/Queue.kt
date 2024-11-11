@@ -3,9 +3,8 @@ package com.sin_tax.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class User(
+data class Queue(
     val id: Int = -1,
-    val email: String,
-    val password: String,
-    val phoneNo: Long
+    val title: String,
+    val maxLimit: Int,
 )

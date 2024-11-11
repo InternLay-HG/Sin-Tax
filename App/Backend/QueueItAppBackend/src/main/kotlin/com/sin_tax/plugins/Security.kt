@@ -28,13 +28,28 @@ fun Application.configureSecurity() {
                 if (credential.payload.getClaim("userId") != null) JWTPrincipal(credential.payload) else null
             }
         }
+
+        jwt("business-jwt") {
+            realm = jwtRealm
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(jwtSecret))
+                    .withAudience(jwtAudience)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+
+            validate { credential ->
+                if (credential.payload.getClaim("businessId") != null) JWTPrincipal(credential.payload) else null
+            }
+        }
     }
 }
 
-fun createToken(userId: String): String {
+fun createToken(claimName: String, claimValue: String): String {
     return JWT.create()
         .withAudience(jwtAudience)
         .withIssuer(jwtIssuer)
-        .withClaim("userId", userId)
+        .withClaim(claimName, claimValue)
         .sign(Algorithm.HMAC256(jwtSecret))
 }

@@ -11,5 +11,6 @@ fun Application.configureRouting() {
         businessRoutes()
         customerRoutes()
         eventRoutes()
+        queueRoutes()
     }
 }
