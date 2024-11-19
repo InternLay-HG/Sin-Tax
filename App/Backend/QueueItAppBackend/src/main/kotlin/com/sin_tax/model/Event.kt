@@ -7,7 +7,8 @@ data class Event(
     val id: Int = -1,
     val title: String,
     val description: String,
-    val durationInMinutes: Int,
+    val startTime: Long,
+    val endTime: Long,
     val category: EventCategory,
-    val waitTime: Int
+    val waitTime: Int,
 )

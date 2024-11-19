@@ -2,6 +2,7 @@ package com.sin_tax.repository
 
 import com.sin_tax.model.Business
 import com.sin_tax.model.EventCategory
+import com.sin_tax.routes.dbQuery
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -45,6 +46,10 @@ class BusinessRepository {
         }
 
         return businessEntity?.id?.value ?: 0
+    }
+
+    suspend fun findById(businessId: Int) = dbQuery {
+        BusinessEntity.findById(businessId)
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =

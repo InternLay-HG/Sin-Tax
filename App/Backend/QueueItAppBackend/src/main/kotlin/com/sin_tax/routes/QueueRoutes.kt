@@ -1,6 +1,7 @@
 package com.sin_tax.routes
 
 import com.sin_tax.model.Queue
+import com.sin_tax.repository.CustomerQueues
 import com.sin_tax.repository.QueueRepository
 import com.sin_tax.repository.Queues
 import io.ktor.http.*
@@ -18,45 +19,27 @@ import java.util.*
 fun Routing.queueRoutes() {
 
     transaction {
-        SchemaUtils.create(Queues)
+        SchemaUtils.create(Queues, CustomerQueues)
     }
 
 //    val queueRepository: QueueRepository by inject()
     val queueRepository = QueueRepository()
 
-    route("/event") {
+    route("/queue") {
 
-        authenticate("business-jwt") {
-            post("/createQueue") {
-                val newQueue = call.receive<Queue>()
-                val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                val eventId = principal.getClaim("eventId", String::class) ?: return@post call.respond(HttpStatusCode.Forbidden)
-                queueRepository.create(newQueue, eventId.toInt())
-                call.respond(HttpStatusCode.OK)
-            }
+        post("/create/{eventId}") {
+            val eventId = call.parameters["eventId"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val newQueue = call.receive<Queue>()
+            queueRepository.create(newQueue, eventId.toInt())
+            call.respond(HttpStatusCode.OK)
         }
-
-//        post("/add/{queueId}/{customerId}") {
-//            val queueId = call.parameters["queueId"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-//            val customerId = call.parameters["customerId"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-//
-//            queueRepository.addNewEntry(queueId.toInt(), customerId.toInt())
-//            call.respond(HttpStatusCode.OK)
-//        }
-//
-//        post("/remove/{queueId}/{customerId}") {
-//            val queueId = call.parameters["queueId"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-//            val customerId = call.parameters["customerId"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-//
-//            queueRepository.removeCustomer(queueId.toInt(), customerId.toInt())
-//            call.respond(HttpStatusCode.OK)
-//        }
 
         val sessions = Collections.synchronizedList<WebSocketServerSession>(ArrayList())
 
         webSocket("/connect/{queueId}") {
             sessions.add(this)
-            val queueId = call.parameters["queueId"]?.toInt() ?: return@webSocket call.respond(HttpStatusCode.BadRequest)
+            val queueId =
+                call.parameters["queueId"]?.toInt() ?: return@webSocket call.respond(HttpStatusCode.BadRequest)
             val customers = queueRepository.getAllEntries(queueId)
 
             for (customer in customers) {
@@ -69,16 +52,34 @@ fun Routing.queueRoutes() {
                     if (msg[0] == 'A') {
                         val customerId = msg.substringAfter("ADD:")
                         queueRepository.addNewEntry(queueId, customerId.toInt())
-                        outgoing.send(Frame.Text(customerId))
-                    }
-
-                    else if (msg[0] == 'R') {
+                        for (session in sessions)
+                            outgoing.send(Frame.Text(customerId))
+                    } else if (msg[0] == 'R') {
                         val customerId = msg.substringAfter("REMOVE:")
                         queueRepository.removeCustomer(queueId, customerId.toInt())
-                        outgoing.send(Frame.Text(customerId))
+                        for (session in sessions)
+                            outgoing.send(Frame.Text(customerId))
                     }
                 }
             }
+        }
+
+        get("/running/all") {
+            val queues = queueRepository.getCurrentQueues()
+
+            call.respond(queues)
+        }
+
+        get("/{queueId}") {
+            val id = call.parameters["queueId"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val event = queueRepository.getQueueById(id.toInt()) ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.respond(event)
+        }
+
+        get("/{eventId}/all") {
+            val eventId = call.parameters["eventId"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val queues = queueRepository.getQueuesForEvent(eventId.toInt())
+            call.respond(queues)
         }
 
         /*

@@ -1,6 +1,7 @@
 package com.sin_tax.repository
 
 import com.sin_tax.model.User
+import com.sin_tax.repository.Users.email
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -18,7 +19,7 @@ object Users : IntIdTable("users") {
 }
 
 class UserEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object: IntEntityClass<UserEntity>(Users)
+    companion object : IntEntityClass<UserEntity>(Users)
 
     var email by Users.email
     var password by Users.password
@@ -30,7 +31,8 @@ class UserEntity(id: EntityID<Int>) : IntEntity(id) {
 fun UserEntity.mapToUser() = User(
     email = this.email,
     password = this.password,
-    phoneNo = this.phoneNo
+    phoneNo = this.phoneNo,
+    id = this.id.value
 )
 
 class UserRepository {
@@ -40,6 +42,7 @@ class UserRepository {
             this.password = user.password
             this.phoneNo = user.phoneNo
             this.business = null
+            this.customer = null
         }.id.value
     }
 
@@ -59,14 +62,24 @@ class UserRepository {
         }
     }
 
+    suspend fun findUser(user: User) =
+        dbQuery {
+            val foundUser = UserEntity.find { email eq user.email }.firstOrNull()?.mapToUser() ?: return@dbQuery null
+            if (foundUser.password != user.password) throw IncorrectPasswordException()
+            foundUser
+        }
+
     suspend fun registerCustomer(userId: Int, customerEntity: CustomerEntity?) = dbQuery {
         val userEntity = UserEntity.findById(userId)
         if (userEntity != null) {
             userEntity.customer = customerEntity
             userEntity.flush()
         }
+        userEntity
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 }
+
+class IncorrectPasswordException(msg: String? = null) : RuntimeException(msg)

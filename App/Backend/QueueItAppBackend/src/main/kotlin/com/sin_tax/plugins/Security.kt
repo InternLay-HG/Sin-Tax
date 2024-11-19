@@ -43,6 +43,21 @@ fun Application.configureSecurity() {
                 if (credential.payload.getClaim("businessId") != null) JWTPrincipal(credential.payload) else null
             }
         }
+
+        jwt("customer-jwt") {
+            realm = jwtRealm
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(jwtSecret))
+                    .withAudience(jwtAudience)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+
+            validate { credential ->
+                if (credential.payload.getClaim("customerId") != null) JWTPrincipal(credential.payload) else null
+            }
+        }
     }
 }
 

@@ -25,9 +25,16 @@ class CustomerEntity(id: EntityID<Int>) : IntEntity(id) {
     var queues by QueueEntity via CustomerQueues
 }
 
+fun CustomerEntity.mapToCustomer() = Customer(
+    age = this.age,
+    id = this.id.value,
+    name = this.name,
+    gender = this.gender
+)
+
 class CustomerRepository {
-    val userRepository: UserRepository by GlobalContext.get().inject<UserRepository>()
-    suspend fun register(customer: Customer, userId: Int) {
+    private val userRepository: UserRepository by GlobalContext.get().inject<UserRepository>()
+    suspend fun register(customer: Customer, userId: Int): Int {
 
         var customerEntity: CustomerEntity? = null
         dbQuery {
@@ -41,6 +48,12 @@ class CustomerRepository {
         dbQuery {
             userRepository.registerCustomer(userId, customerEntity)
         }
+
+        return customerEntity!!.id.value
+    }
+
+    suspend fun getCustomerById(customerId: Int) = dbQuery {
+        CustomerEntity.findById(customerId)?.mapToCustomer()
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
